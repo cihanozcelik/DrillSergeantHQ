@@ -38,7 +38,7 @@ DrillSergeantHQ is that learning project: **no magic boxes**, just the fundament
 
 ## Documentation
 
-- **Technical design**: `docs/technical-design.md`
+- **Technical design**: [`docs/technical-design.md`](docs/technical-design.md)
 
 ## Status
 
