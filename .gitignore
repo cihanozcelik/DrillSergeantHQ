@@ -1,0 +1,69 @@
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# --- Logs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Environment files ---
+.env
+.env.*
+!.env.example
+
+# --- Node / React / TypeScript ---
+node_modules/
+
+dist/
+build/
+out/
+coverage/
+
+.vite/
+.parcel-cache/
+.turbo/
+.next/
+.nuxt/
+
+*.tsbuildinfo
+
+# Common tool outputs/caches
+.cache/
+.eslintcache
+storybook-static/
+playwright-report/
+test-results/
+
+# Package managers (keep lockfiles committed)
+.pnp.*
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnpm-store/
+
+# --- Rust ---
+target/
+**/target/
+
+# --- WASM / wasm-pack outputs ---
+# wasm-pack default output directory
+pkg/
+**/pkg/
+
+# Common bundler cache/output dirs from wasm toolchains
+.wasm-pack/
+
+# If you ever emit raw artifacts into the repo, keep them out of git
+*.wasm
+*.wat
+
+
