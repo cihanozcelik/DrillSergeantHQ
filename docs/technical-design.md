@@ -188,6 +188,47 @@ Rollout record layout: **SoA recommended**, e.g.:
 
 - `obs[t][env]`, `act[t][env]`, `rew[t][env]`, `done[t][env]`, `logp[t][env]`, `value[t][env]`
 
+## Persistence and Model Portability (Saves)
+
+Goal: Allow users to export, import, and "checkpoint" their agents locally.
+
+### Storage Backend: OPFS (Origin Private File System)
+
+For high-performance storage of model weights (SAB blobs), we use **OPFS**. It provides a "real" filesystem in the browser that is significantly faster than IndexedDB or LocalStorage.
+
+- **Format**: Simple binary blob (header: metadata/shape, body: float32 weights).
+- **Auto-save**: Every 5 minutes or on "Training Stop".
+- **Manual Export**: Trigger a download of the `.dshq` model file.
+
+## Observability and Training Telemetry
+
+Training a "black box" is impossible. We need real-time visibility into the trainer's health.
+
+### Metrics (Trainer → UI, 1–2 Hz)
+
+1. **Loss Metrics**: `loss_policy`, `loss_value`, `loss_entropy` (to detect collapse).
+2. **Performance Metrics**: `steps_per_second` (SPS), `updates_per_second`, `gpu_utilization_estimate`.
+3. **Environment Metrics**: `avg_reward`, `win_rate_ema`, `episode_length`.
+4. **Hyperparameters**: `current_lr`, `clip_epsilon`.
+
+### Debugging the "Hidden" State
+
+- **CPU Reference Path**: Every WGSL kernel must have a Rust/CPU equivalent. If results diverge beyond a threshold, the system should log a warning (Validation Mode).
+- **WGSL Validation**: Enable `wgpu` validation layers in development builds.
+
+## Hardware Compatibility and Fallbacks
+
+### Minimum Requirements
+
+- **Browser**: Chrome 113+, Edge 113+, Firefox 128+, or Safari 17.4+ (WebGPU support).
+- **Hardware**: 4+ Physical Cores recommended; SharedArrayBuffer support (Cross-origin isolated).
+
+### Graceful Degradation (CPU Fallback)
+
+If `navigator.gpu` is unavailable:
+1. **Training**: Fall back to the `nn_cpu` module (multi-threaded via Rayon). It will be 5–10x slower but functional.
+2. **Rendering**: Fall back to a standard WebGL or Canvas2D renderer (though `wgpu` often handles this via its software/gl backends).
+
 ## Timing and loops (real-time show + background training)
 
 ### Render/Eval worker loop
