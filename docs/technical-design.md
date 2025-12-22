@@ -13,7 +13,7 @@ This document is meant to be readable as a **standalone project file**: clear ar
 - **Core promise**: “The joy of training an agent in the browser.” The user can run a live match as a demo/sandbox, then press **Train** to start aggressive background learning; behavior visibly improves as the policy hot-swaps—**with normal controls available** (Play/Pause, speed, reset).
 - **Performance stance**: multi-worker, **WASM threads** (SharedArrayBuffer + cross-origin isolation), and WebGPU compute—optimized for max throughput.
 
-## Product overview (1 paragraph)
+## Product overview
 
 DrillSergeantHQ is a browser-only **agent training playground**. The user watches a live arena game (first environment: a 2D soccer-like simulation). Training starts when the user presses **Train**; before that, the simulation can run as a sandbox/demo with a dumb baseline policy (e.g., random or scripted). Once training is running, the policy is trained via massively parallel simulation (PPO), producing continuous updates. Model weights are periodically **hot-swapped** so behavior can improve in real time (either mid-session or after a reset—both are supported). The user can drag the ball/players to test instantly, or control a player and watch the opponent “get smarter” over time. In v1, user interaction does **not** enter the training dataset.
 
@@ -31,12 +31,12 @@ DrillSergeantHQ is a browser-only **agent training playground**. The user watche
 
 - **Browser-only**: no native app requirement.
 - **Max performance**: saturate CPU cores; use GPU for both rendering and training compute.
-- **Continuous improvement UX (optional)**: allow the show match to keep running while policy weights hot-swap, so behavior can improve without requiring a reset.
+- **Continuous improvement UX**: allow the show match to keep running while policy weights hot-swap, so behavior can improve without requiring a reset.
 - **Normal controls**: Play/Pause, speed control, and reset must be supported.
-- **Training isolation (v1)**: show env and user input do not contaminate training data.
+- **Training isolation**: show env and user input do not contaminate training data.
 - **Single-page experience**: instant “training is happening” feeling on load.
 
-### Non-goals (v1)
+### Non-goals
 
 - Shipping with a framework-dependent RL stack (e.g., TF.js). Core training stays in our control.
 - Cloud/server-side compute (runs entirely on-device).
@@ -125,7 +125,7 @@ This project is intentionally **from-scratch and highly optimized for this speci
                |                                                   |
                |                                                   v
 +-----------------------------+                  +------------------------------+
-| Rollout Worker Pool (N)     |                  | (optional) metrics           |
+| Rollout Worker Pool (N)     |                  | optional metrics             |
 | - headless env batches      |                  | to UI 1-2Hz                  |
 | - writes rollouts to SAB    |                  +------------------------------+
 +-----------------------------+
@@ -177,7 +177,7 @@ Memory:
 - `rollout_data`: SAB (mixed float/int segments as needed)
 - `rollout_ctrl`: SAB (atomics)
 
-Control fields (example):
+Control fields:
 
 - `head` (write index)
 - `tail` (read index)
@@ -317,7 +317,7 @@ R_t = A_t + V(s_t)
 
 References: `WorkerNavigator.gpu` ([MDN Web Docs][1]), WebGPU spec ([W3C][7]).
 
-### Training compute kernels (minimum set)
+### Training compute kernels
 
 1. `linear_forward`: \(Y = XW + b\)
 2. `activation_forward`: ReLU/Tanh
