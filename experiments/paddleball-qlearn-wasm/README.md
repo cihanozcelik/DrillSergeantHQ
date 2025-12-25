@@ -30,6 +30,7 @@ Open the URL printed by Vite.
 
 - **`scaffold.md`**: the newbie explainer of the current scaffold (render pipeline, TS↔WASM flow, shader, uniforms).
 - **`hypothetical-implementation.md`**: pre-thinking / implementation notes (a plausible plan; **not** the official tutorial).
+- **`plan.md`**: the official, testable step-by-step development plan (what to build next).
 
 ## Layout
 
@@ -37,4 +38,5 @@ Open the URL printed by Vite.
 experiments/paddleball-qlearn-wasm/
   hypothetical-implementation.md
   scaffold.md
+  plan.md
 ```
