@@ -53,6 +53,29 @@ npm run dev
 
 Open the URL printed by Vite.
 
+## Running it (auto-rebuild + auto-refresh)
+
+If you want a “watch mode” (edit Rust/TS → auto rebuild → browser refresh):
+
+1) Install the Rust watcher once:
+
+```bash
+cargo install cargo-watch
+```
+
+2) Start the watch dev loop:
+
+```bash
+cd experiments/paddleball-qlearn-wasm/web
+npm install
+npm run dev:wasm:watch
+```
+
+What happens:
+- Vite runs the dev server (HMR / page refresh)
+- `cargo watch` rebuilds the WASM package into `web/src/pkg/` when Rust changes
+- Vite sees `web/src/pkg/` updates and reloads the page
+
 ## Tutorial: how to read the code
 
 ### Step 0 — Get a picture on screen
