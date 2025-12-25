@@ -40,7 +40,7 @@ Good action spaces are **expressive**, **learnable**, and **physically valid**.
 - **Discrete actions**: choose one option from a list (like pressing a button).
   - Example: `{left, right, jump, do_nothing}`
 - **Continuous actions**: output a real number (like turning a knob).
-  - Example: steering angle in \([-1, 1]\)
+  - Example: steering angle in $[-1, 1]$
 - **Policy**: the agent’s decision rule (a function that maps observations → actions).
 - **Action frequency**: how often the policy picks a new action (e.g., 10 times per second).
 - **Simulation step**: how often physics/world updates run (e.g., 120 updates per second).
@@ -114,7 +114,7 @@ We make three small menus and combine them:
 - Turn: `{none, left, right}` (3)
 - Dash: `{no, yes}` (2)
 
-Total actions: \(5 \times 3 \times 2 = 30\)
+Total actions: $5 \times 3 \times 2 = 30$
 
 ### Step C: map actions to *targets*, not teleports
 When the agent selects an action, we convert it into targets:
@@ -126,9 +126,7 @@ When the agent selects an action, we convert it into targets:
 ### Step D: apply rate limits (smoothness)
 Even target velocities can change too abruptly. Add an acceleration limit:
 
-\[
-v \leftarrow v + \mathrm{clip}(v_{target} - v,\; -a_{max}\Delta t,\; a_{max}\Delta t)
-\]
+$$v \leftarrow v + \mathrm{clip}(v_{target} - v,\quad -a_{max}\Delta t,\quad a_{max}\Delta t)$$
 
 Now the agent can’t instantly flip from full-left to full-right.
 
