@@ -48,6 +48,22 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
   // Convert from NDC [-1..1] to UV [0..1].
   let uv = in.ndc * 0.5 + vec2<f32>(0.5, 0.5);
 
+  // Walls (static, visual only): top/left/right.
+  let wall_t = 0.02;
+  let wall_col = vec3<f32>(0.22, 0.24, 0.30);
+
+  let left_center = vec2<f32>(wall_t * 0.5, 0.5);
+  let left_half = vec2<f32>(wall_t * 0.5, 0.5);
+  let d_left = rect_sdf_aspect(uv, left_center, left_half, scene.aspect);
+
+  let right_center = vec2<f32>(1.0 - wall_t * 0.5, 0.5);
+  let right_half = vec2<f32>(wall_t * 0.5, 0.5);
+  let d_right = rect_sdf_aspect(uv, right_center, right_half, scene.aspect);
+
+  let top_center = vec2<f32>(0.5, 1.0 - wall_t * 0.5);
+  let top_half = vec2<f32>(0.5, wall_t * 0.5);
+  let d_top = rect_sdf_aspect(uv, top_center, top_half, scene.aspect);
+
   // Paddle: center in UV space.
   let paddle_center = vec2<f32>(scene.paddle_x, scene.paddle_y);
   let paddle_half = vec2<f32>(scene.paddle_w * 0.5, scene.paddle_h * 0.5);
@@ -64,6 +80,9 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
   let ball_col = vec3<f32>(0.95, 0.62, 0.22);
 
   var col = bg;
+  if (d_left <= 0.0 || d_right <= 0.0 || d_top <= 0.0) {
+    col = wall_col;
+  }
   if (d_paddle <= 0.0) {
     col = paddle_col;
   }

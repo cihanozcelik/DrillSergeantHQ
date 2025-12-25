@@ -230,11 +230,10 @@ impl RenderState {
     }
 
     fn update(&mut self) {
-        // Scaffold animation: gently move the ball in a small loop.
-        // TODO(Phase 1): replace this with deterministic physics stepping.
-        let t = (js_sys::Date::now() as f32) * 0.001;
-        self.uniforms.ball_x = 0.5 + 0.15 * t.cos();
-        self.uniforms.ball_y = 0.65 + 0.10 * t.sin();
+        // Scaffold: static scene (no animation).
+        // Keep these values stable; later phases can replace this with simulation.
+        self.uniforms.ball_x = 0.5;
+        self.uniforms.ball_y = 0.65;
 
         self.queue
             .write_buffer(&self.uniforms_buffer, 0, bytemuck::bytes_of(&self.uniforms));

@@ -8,7 +8,7 @@ This document explains the **current** PaddleBall scaffold in a newbie-friendly 
 - Where to change things (with copy-find anchors)
 - Tiny experiments to prove you understand it
 
-This scaffold is intentionally minimal: it draws **one paddle + one ball** and handles resize correctly. Later we’ll replace the placeholder sin/cos movement with real physics + RL.
+This scaffold is intentionally minimal: it draws **one paddle + one ball** and handles resize correctly.
 
 ---
 
@@ -27,7 +27,8 @@ Open the URL printed by Vite (usually `http://localhost:5173/`).
 **Expected**:
 - A letterboxed canvas
 - A **teal** paddle (rectangle)
-- An **orange** ball (circle) moving smoothly
+- An **orange** ball (circle)
+- **Walls** on the top/left/right edges
 
 If you don’t see that, stop here and fix the environment first (WebGPU must be available in your browser).
 
@@ -346,13 +347,13 @@ to something obvious like bright red.
 
 File: `rust/src/render.rs`, in `fn update(&mut self)`
 
-Temporarily freeze the ball:
-- set `self.uniforms.ball_x = 0.5;`
-- set `self.uniforms.ball_y = 0.65;`
+Temporarily move the ball:
+- set `self.uniforms.ball_x = 0.2;`
+- set `self.uniforms.ball_y = 0.8;`
 
-**Expected**: ball stops moving.
+**Expected**: ball jumps to the new position.
 
-If the ball still moves, you edited the wrong function OR the app isn’t rebuilding as you expect.
+If nothing changes, you edited the wrong function OR the app isn’t rebuilding as you expect.
 
 ### Experiment C: prove the resize handshake
 
