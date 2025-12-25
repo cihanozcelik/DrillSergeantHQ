@@ -16,9 +16,7 @@ You understand the basic RL loop (observe → act → reward), but you’re tryi
 
 A **rollout** is a sequence of transitions collected by interacting with an environment:
 
-\[
-(o_t, a_t, r_t, d_t, o_{t+1})
-\]
+$$(o_t, a_t, r_t, d_t, o_{t+1})$$
 
 In practice, you store additional fields used by learning algorithms:
 
@@ -59,7 +57,7 @@ The orchestration goal is to keep all parts busy without corrupting data:
 
 ### B) Vectorized environments (one process, many env instances)
 
-You run \(N\) environments in a loop:
+You run $N$ environments in a loop:
 
 - step env[0..N-1]
 - batch observations
@@ -101,7 +99,7 @@ Distributed inference reduces traffic but may underutilize GPU; centralized infe
 
 ## 5) Worked example: a clean producer/consumer pipeline
 
-Goal: collect \(T\) steps from \(N\) envs per worker.
+Goal: collect $T$ steps from $N$ envs per worker.
 
 Each rollout worker loop:
 
@@ -110,7 +108,7 @@ Each rollout worker loop:
 3) run policy inference → actions + logprobs + values
 4) step all envs with actions
 5) store transition fields into a rollout buffer
-6) when buffer has \(T\) steps, publish it to learner
+6) when buffer has $T$ steps, publish it to learner
 
 Learner loop:
 

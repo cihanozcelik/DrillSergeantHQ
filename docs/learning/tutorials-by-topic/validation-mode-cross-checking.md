@@ -59,8 +59,8 @@ For floats:
 - expect small differences due to rounding and operation ordering
 
 Use tolerances:
-- absolute tolerance: \(|a-b| \le \epsilon\)
-- relative tolerance: \(|a-b| \le \epsilon \cdot \max(1, |a|, |b|)\)
+- absolute tolerance: $|a-b| \le \epsilon$
+- relative tolerance: $|a-b| \le \epsilon \cdot \max(1, |a|, |b|)$
 
 Practical suggestion:
 - use both (abs + relative)

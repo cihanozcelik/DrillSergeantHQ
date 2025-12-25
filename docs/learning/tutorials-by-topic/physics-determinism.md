@@ -68,8 +68,8 @@ This makes physics updates consistent even if rendering is variable.
 
 The simplest integrator is Euler:
 
-- \(x \leftarrow x + v \Delta t\)
-- \(v \leftarrow v + a \Delta t\)
+- $x \leftarrow x + v \Delta t$
+- $v \leftarrow v + a \Delta t$
 
 In many physics contexts, **semi-implicit Euler** (also called symplectic Euler) is more stable:
 

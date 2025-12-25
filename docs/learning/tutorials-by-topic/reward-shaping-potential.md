@@ -16,9 +16,9 @@ You’re building a reinforcement learning environment and your agent is not lea
 
 In RL, the agent learns by maximizing expected cumulative reward:
 
-\[
+$$
 \mathbb{E}\left[\sum_{t=0}^{\infty} \gamma^t r_t\right]
-\]
+$$
 
 **Reward shaping** means adding extra reward signals that make learning easier—usually by giving the agent “hint rewards” on the way to a sparse goal.
 
@@ -58,14 +58,14 @@ Engineering rule:
 
 ---
 
-## 4) Discount factor \(\gamma\) (why it changes shaping behavior)
+## 4) Discount factor $\gamma$ (why it changes shaping behavior)
 
-\(\gamma\) controls how much the agent values the future:
+$\gamma$ controls how much the agent values the future:
 
-- \(\gamma\) near 1 → long-horizon planning
-- lower \(\gamma\) → short-term focus
+- $\gamma$ near 1 → long-horizon planning
+- lower $\gamma$ → short-term focus
 
-Shaping terms interact with \(\gamma\) because the agent cares about **discounted** reward. A shaping signal that looks “small” per step can dominate total reward over long episodes.
+Shaping terms interact with $\gamma$ because the agent cares about **discounted** reward. A shaping signal that looks “small” per step can dominate total reward over long episodes.
 
 Practical implication:
 - If you add per-step shaping, be careful: small per-step rewards can add up to a lot.
@@ -76,9 +76,7 @@ Practical implication:
 
 Potential-based shaping adds a shaped reward defined by a potential function \(\Phi(s)\):
 
-\[
-r'_t = r_t + \gamma \Phi(s_{t+1}) - \Phi(s_t)
-\]
+$$r'_t = r_t + \gamma \Phi(s_{t+1}) - \Phi(s_t)$$
 
 Key property (why people like it):
 - Under common assumptions, it **does not change which policies are optimal**—it just changes learning dynamics.
@@ -97,18 +95,18 @@ Environment:
 - terminal reward: +1 when within radius
 
 Sparse reward:
-- \(r_t = 1\) at success, else 0
+- $r_t = 1$ at success, else 0
 
 Potential function:
-- \(\Phi(s) = -\text{distance}(\text{agent}, \text{goal})\)
+- $\Phi(s) = -\text{distance}(\text{agent}, \text{goal})$
 
 Shaped reward:
 
-\[
+$$
 r'_t = r_t + \gamma(-d_{t+1}) - (-d_t) = r_t + (d_t - \gamma d_{t+1})
-\]
+$$
 
-If the agent moves closer (distance decreases), \(r'_t\) tends to be positive.
+If the agent moves closer (distance decreases), $r'_t$ tends to be positive.
 
 This helps the agent learn “move toward goal” quickly, while keeping the original terminal reward as the real objective.
 

@@ -6,7 +6,7 @@ You want to understand PPO well enough to implement it, debug it, and tune it—
 ### What you’ll learn
 - The roles of **policy**, **value function**, and **advantage**
 - What a PPO rollout must record
-- How **GAE(\(\lambda\))** plugs into PPO
+- How **GAE($\lambda$)** plugs into PPO
 - The PPO **clipped objective** and why it stabilizes updates
 - A practical “outer loop / inner loop” pseudocode
 
@@ -22,10 +22,10 @@ That “don’t change too much” constraint is what makes PPO stable enough to
 
 ## 2) The minimal vocabulary (plain English)
 
-- **Policy** \(\pi_\theta(a \mid s)\): a model that outputs a distribution over actions.
-- **Value function** \(V_\phi(s)\): a model that predicts expected future return from a state.
-- **Return** \(G_t\): discounted sum of rewards from time \(t\).
-- **Advantage** \(A_t\): how much better an action was compared to the value baseline.
+- **Policy** $\pi_\theta(a \mid s)$: a model that outputs a distribution over actions.
+- **Value function** $V_\phi(s)$: a model that predicts expected future return from a state.
+- **Return** $G_t$: discounted sum of rewards from time \(t\).
+- **Advantage** $A_t$: how much better an action was compared to the value baseline.
 - **On-policy**: the rollout data was collected using the current policy (or a very recent snapshot).
 
 ---
@@ -34,12 +34,12 @@ That “don’t change too much” constraint is what makes PPO stable enough to
 
 For each time step \(t\), store:
 
-- observation \(o_t\)
-- action \(a_t\)
-- reward \(r_t\)
-- done flag \(d_t\)
-- **old log-prob** \(\log \pi_{\text{old}}(a_t \mid o_t)\)
-- value estimate \(V(o_t)\)
+- observation $o_t$
+- action $a_t$
+- reward $r_t$
+- done flag $d_t$
+- **old log-prob** $\log \pi_{\text{old}}(a_t \mid o_t)$
+- value estimate $V(o_t)$
 
 Why `old_logp` matters: PPO measures how the new policy differs from the old policy on *the same actions*.
 
@@ -49,24 +49,17 @@ Why `old_logp` matters: PPO measures how the new policy differs from the old pol
 
 After the rollout, compute advantages \(A_t\) using GAE(\(\lambda\)):
 
-\[
-\delta_t = r_t + \gamma (1-d_t) V(o_{t+1}) - V(o_t)
-\]
-\[
-A_t = \delta_t + \gamma \lambda (1-d_t) A_{t+1}
-\]
+$$\delta_t = r_t + \gamma (1-d_t) V(o_{t+1}) - V(o_t)$$
+
+$$A_t = \delta_t + \gamma \lambda (1-d_t) A_{t+1}$$
 
 Then compute returns for the critic target:
 
-\[
-R_t = A_t + V(o_t)
-\]
+$$R_t = A_t + V(o_t)$$
 
 Common practice: **normalize advantages** (helps stability):
 
-\[
-A \leftarrow \frac{A - \mu}{\sigma + 10^{-8}}
-\]
+$$A \leftarrow \frac{A - \mu}{\sigma + 10^{-8}}$$
 
 ---
 
@@ -74,25 +67,23 @@ A \leftarrow \frac{A - \mu}{\sigma + 10^{-8}}
 
 Define the ratio:
 
-\[
-\text{ratio}_t = \exp\left(\log \pi_{\text{new}}(a_t \mid o_t) - \log \pi_{\text{old}}(a_t \mid o_t)\right)
-\]
+$$\text{ratio}_t = \exp\left(\log \pi_{\text{new}}(a_t \mid o_t) - \log \pi_{\text{old}}(a_t \mid o_t)\right)$$
 
 Interpretation:
 
-- ratio \(= 1\): new policy assigns the same probability to that action
-- ratio \(> 1\): new policy increased the probability of that action
-- ratio \(< 1\): new policy decreased it
+- ratio $= 1$: new policy assigns the same probability to that action
+- ratio $> 1$: new policy increased the probability of that action
+- ratio $< 1$: new policy decreased it
 
 ---
 
 ## 6) The clipped objective (why PPO doesn’t “blow up” as often)
 
-If you just maximize \(\text{ratio}_t A_t\), the policy can change too much in one update. PPO clips the ratio:
+If you just maximize $\text{ratio}_t A_t$, the policy can change too much in one update. PPO clips the ratio:
 
-\[
+$$
 L^{clip} = \mathbb{E}\left[\min\left(\text{ratio}_t A_t,\ \text{clip}(\text{ratio}_t, 1-\epsilon, 1+\epsilon) A_t\right)\right]
-\]
+$$
 
 Meaning:
 
@@ -105,15 +96,15 @@ Meaning:
 
 In practice you optimize a combined objective:
 
-- **Policy loss**: maximize \(L^{clip}\) (often implemented as minimizing \(-L^{clip}\))
-- **Value loss**: fit \(V(o_t)\) to \(R_t\) (often MSE)
+- **Policy loss**: maximize $L^{clip}$ (often implemented as minimizing $-L^{clip}$)
+- **Value loss**: fit $V(o_t)$ to $R_t$ (often MSE)
 - **Entropy bonus**: encourage exploration by penalizing low-entropy policies
 
 One common form:
 
-\[
+$$
 L = -L^{clip} + c_v \cdot \mathbb{E}[(V(o_t) - R_t)^2] - c_e \cdot \mathbb{E}[H(\pi(\cdot \mid o_t))]
-\]
+$$
 
 ---
 
@@ -141,9 +132,9 @@ Rollouts are expensive, so PPO reuses the rollout data for a few passes. But too
 
 ## 9) Shapes: the most common wiring bug
 
-If you run \(N\) environments for \(T\) steps:
+If you run $N$ environments for $T$ steps:
 
-- batch size \(B = N \cdot T\)
+- batch size $B = N \cdot T$
 
 Most implementations store arrays as:
 
@@ -177,12 +168,12 @@ Then flatten `T*N` before minibatching.
 
 Reasonable defaults to start experimentation (domain-dependent):
 
-- \(\gamma = 0.99\)
-- \(\lambda = 0.95\)
-- clip \(\epsilon = 0.2\)
-- epochs \(K = 3\) to \(10\) (often 3–4 for large batches)
-- value coefficient \(c_v \approx 0.5\) to \(1.0\)
-- entropy coefficient \(c_e\) small but nonzero (e.g., 0.0–0.02)
+- $\gamma = 0.99$
+- $\lambda = 0.95$
+- clip $\epsilon = 0.2$
+- epochs $K = 3$ to $10$ (often 3–4 for large batches)
+- value coefficient $c_v \approx 0.5$ to $1.0$
+- entropy coefficient $c_e$ small but nonzero (e.g. 0.0–0.02)
 
 ---
 

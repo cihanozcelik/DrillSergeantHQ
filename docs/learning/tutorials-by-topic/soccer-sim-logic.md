@@ -30,16 +30,16 @@ Run this at a fixed timestep for stability (see fixed dt discussion in determini
 
 ## 2) Semi-implicit Euler (why it’s used everywhere)
 
-Given position \(p\), velocity \(v\), acceleration \(a\), timestep \(\Delta t\):
+Given position $p$, velocity $v$, acceleration $a$, timestep $\Delta t$:
 
 1) update velocity:
-\[
+$$
 v \leftarrow v + a \Delta t
-\]
+$$
 2) update position with the new velocity:
-\[
+$$
 p \leftarrow p + v \Delta t
-\]
+$$
 
 This method is simple and often more stable than “explicit Euler” in game-like settings.
 
@@ -47,7 +47,7 @@ This method is simple and often more stable than “explicit Euler” in game-li
 
 ## 3) Circle vs wall collisions (practical approach)
 
-For a circle (center \(c\), radius \(r\)) and a wall represented as a line/segment with a normal vector \(n\):
+For a circle (center $c$, radius $r$) and a wall represented as a line/segment with a normal vector $n$:
 
 ### Detection idea
 Compute signed distance from circle center to wall:
@@ -57,29 +57,23 @@ Compute signed distance from circle center to wall:
 ### Resolution idea (minimum translation)
 Push the circle out along the normal:
 
-\[
-c \leftarrow c + (r - d) n
-\]
+$$c \leftarrow c + (r - d) n$$
 
 Then reflect or impulse-correct velocity along the collision normal.
 
 ### Velocity response (basic)
 Split velocity into normal and tangential components:
 
-- \(v_n = (v \cdot n)n\)
-- \(v_t = v - v_n\)
+- $v_n = (v \cdot n)n$
+- $v_t = v - v_n$
 
-Reflect the normal component with restitution \(e \in [0,1]\):
+Reflect the normal component with restitution $e \in [0,1]$:
 
-\[
-v \leftarrow v_t - e v_n
-\]
+$$v \leftarrow v_t - e v_n$$
 
 Add friction by scaling tangential velocity:
 
-\[
-v \leftarrow (1-\mu) v_t - e v_n
-\]
+$$v \leftarrow (1-\mu) v_t - e v_n$$
 
 This is a simple but effective model for many arcade physics games.
 
