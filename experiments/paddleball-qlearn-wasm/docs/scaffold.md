@@ -401,6 +401,3 @@ This scaffold is “correct” because:
 - The **CPU→GPU boundary is explicit** (`SceneUniforms` + uniform buffer upload).
 - Resize is handled with a clean **TS→WASM flag → Rust surface reconfigure** handshake.
 - The shader is minimal and deterministic (fullscreen triangle + SDF).
-
-Your next step in the tutorial is to replace the placeholder sin/cos animation in `RenderState::update()` with a deterministic physics `World::step(dt)` and then fill `SceneUniforms` from the world state.
-
