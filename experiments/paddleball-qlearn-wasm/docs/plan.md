@@ -6,7 +6,7 @@ This file is the **official, repo-local plan** for the learning experiment in:
 It complements:
 - `README.md` (how to run)
 - `scaffold.md` (how the current render scaffold works)
-- `guide/README.md` (step-by-step implementation guide)
+- `guide-draft/README.md` (step-by-step implementation guide (draft; not yet proven))
 
 ---
 

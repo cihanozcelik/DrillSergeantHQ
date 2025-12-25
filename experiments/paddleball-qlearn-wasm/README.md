@@ -31,14 +31,14 @@ Open the URL printed by Vite.
 ## Start here
 
 - **Read the plan**: `docs/plan.md` (what you’ll build, with todo IDs like `08-01`)
-- **Follow the implementation guide**: `docs/guide/README.md` (how to implement each step)
+- **Follow the implementation guide (draft)**: `docs/guide-draft/README.md` (how to implement each step)
 - **If you’re confused about WebGPU/WASM/rendering**: `docs/scaffold.md` (how the scaffold works)
 
 ## Learning Resources
 
 - **`docs/scaffold.md`**: the newbie explainer of the current scaffold (render pipeline, TS↔WASM flow, shader, uniforms).
 - **`docs/plan.md`**: the official, testable step-by-step development plan (what to build next).
-- **`docs/guide/README.md`**: step-by-step implementation guide (how to build each plan step).
+- **`docs/guide-draft/README.md`**: step-by-step implementation guide (draft; not yet proven).
 
 ## Layout
 
