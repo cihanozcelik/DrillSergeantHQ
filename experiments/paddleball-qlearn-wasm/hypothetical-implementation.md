@@ -3,6 +3,8 @@
 
 This document is **not** the official step-by-step tutorial.
 
+**Important**: this is **not deep learning** (no neural network). It’s **tabular Q-learning** (a Q-table).
+
 What “hypothetical” means here:
 - The repo currently contains a **rendering scaffold** (paddle + ball drawn by a shader).
 - The sections below describe **one plausible implementation plan** (simulation + discretization + Q-learning) and how it would wire into the scaffold.

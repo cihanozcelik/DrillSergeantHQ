@@ -1,7 +1,9 @@
 # PaddleBall Q-learning (WASM + wgpu)
 
 This is a **standalone experiment** inside the DrillSergeantHQ repo:
-**Rust + WASM + WebGPU (wgpu)** + a tiny RL environment (PaddleBall + Q-learning).
+**Rust + WASM + WebGPU (wgpu)** + a tiny RL environment (PaddleBall + tabular Q-learning).
+
+**Important**: this experiment is **not deep learning** (no neural network). It’s classic **tabular Q-learning**.
 
 The end goal is a beginner-friendly “paddle keeps a ball alive” environment that evolves into:
 - deterministic-ish fixed timestep physics

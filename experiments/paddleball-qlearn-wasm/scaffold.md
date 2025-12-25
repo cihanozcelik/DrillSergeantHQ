@@ -10,6 +10,8 @@ This document explains the **current** PaddleBall scaffold in a newbie-friendly 
 
 This scaffold is intentionally minimal: it draws **one paddle + one ball** and handles resize correctly.
 
+**Important**: the learning experiment built on top of this scaffold is **not deep learning**. It uses **tabular Q-learning** (a Q-table), not a neural network.
+
 ---
 
 ## Run it first (so you know your baseline works)
