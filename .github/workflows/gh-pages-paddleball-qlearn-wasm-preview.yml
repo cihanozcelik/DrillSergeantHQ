@@ -75,18 +75,38 @@ jobs:
             const owner = context.repo.owner;
             const pr = context.payload.pull_request.number;
             const url = `https://${owner}.github.io/${repo}/previews/pr-${pr}/experiments/paddleball-qlearn-wasm/`;
+            const marker = "<!-- paddleball-preview-url -->";
 
             const body = [
+              marker,
               `PaddleBall preview deployed: ${url}`,
               ``,
               `Note: this workflow runs only when \`experiments/paddleball-qlearn-wasm/**\` changes.`,
             ].join("\n");
 
-            await github.rest.issues.createComment({
+            // Avoid comment spam: update existing preview comment if present.
+            const { data: comments } = await github.rest.issues.listComments({
               owner,
               repo,
               issue_number: pr,
-              body,
+              per_page: 100,
             });
+
+            const existing = comments.find((c) => typeof c.body === "string" && c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: pr,
+                body,
+              });
+            }
 
 
