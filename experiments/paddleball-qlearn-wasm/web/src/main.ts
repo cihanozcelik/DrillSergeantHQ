@@ -127,7 +127,7 @@ async function main() {
     run(canvas);
   };
 
-  void startWhenReady();
+  await startWhenReady();
 }
 
 main().catch((err) => {
