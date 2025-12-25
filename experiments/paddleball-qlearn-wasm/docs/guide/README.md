@@ -1,7 +1,7 @@
 # PaddleBall Q-learning — Step-by-step Implementation Guide
 
 This guide is the **implementation companion** to:
-- `experiments/paddleball-qlearn-wasm/plan.md`
+- `experiments/paddleball-qlearn-wasm/docs/plan.md`
 
 **Important**: this experiment is **not deep learning** (no neural network). It’s **tabular Q-learning** (a Q-table).
 

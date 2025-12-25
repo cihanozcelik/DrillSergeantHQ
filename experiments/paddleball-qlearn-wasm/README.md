@@ -30,15 +30,18 @@ Open the URL printed by Vite.
 
 ## Learning Resources
 
-- **`scaffold.md`**: the newbie explainer of the current scaffold (render pipeline, TS↔WASM flow, shader, uniforms).
-- **`hypothetical-implementation.md`**: pre-thinking / implementation notes (a plausible plan; **not** the official tutorial).
-- **`plan.md`**: the official, testable step-by-step development plan (what to build next).
+- **`docs/scaffold.md`**: the newbie explainer of the current scaffold (render pipeline, TS↔WASM flow, shader, uniforms).
+- **`docs/hypothetical-implementation.md`**: implementation guide index (points to the plan + step-by-step guide).
+- **`docs/plan.md`**: the official, testable step-by-step development plan (what to build next).
+- **`docs/guide/README.md`**: step-by-step implementation guide (how to build each plan step).
 
 ## Layout
 
 ```
 experiments/paddleball-qlearn-wasm/
-  hypothetical-implementation.md
-  scaffold.md
-  plan.md
+  docs/
+    plan.md
+    scaffold.md
+    hypothetical-implementation.md
+    guide/
 ```

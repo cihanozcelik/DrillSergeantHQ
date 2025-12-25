@@ -22,7 +22,7 @@ Goal: write the **minimum physics spec** needed to implement wall bounces next, 
 - **Technique**: choose easy numbers (like `dt=0.1` and `vx=-1`).
 - **Why**: makes the rule unambiguous for newbies.
 
-## Spec (copy into `plan.md` if you want it in one place)
+## Spec (copy into `docs/plan.md` if you want it in one place)
 
 **Coordinate system**
 - UV space: \(x,y \in [0,1]\)
