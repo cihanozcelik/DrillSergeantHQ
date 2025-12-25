@@ -42,6 +42,13 @@ DrillSergeantHQ is that learning project: **no magic boxes**, just the fundament
 - **The learning book (engine-style, long-form)**: [`docs/learning/the-book/README.md`](docs/learning/the-book/README.md)
 - **Standalone tutorials index**: [`docs/learning/tutorials-by-topic/README.md`](docs/learning/tutorials-by-topic/README.md)
 
+## Experiments
+
+The `experiments/` folder contains **small, standalone learning projects** used to de-risk pieces of DrillSergeantHQ (rendering, simulation loops, RL basics, WASM/WebGPU integration).
+
+- **Experiments index**: [`experiments/README.md`](experiments/README.md)
+- **Example experiment (beginner-friendly)**: [`experiments/paddleball-qlearn-wasm/README.md`](experiments/paddleball-qlearn-wasm/README.md)
+
 ## Status
 
 Early-stage design + planning. Implementation will land in small, performance-oriented pieces.
