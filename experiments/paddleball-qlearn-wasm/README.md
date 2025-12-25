@@ -39,14 +39,23 @@ experiments/paddleball-qlearn-wasm/
 
 From the repo root:
 
-1) Install web deps:
+1) Install prerequisites:
+
+- Install `wasm-pack`
+- Install `cargo-watch` once:
 
 ```bash
-cd experiments/paddleball-qlearn-wasm/web
+cargo install cargo-watch
+```
+
+2) Install deps for this experiment (installs both the root dev deps and `web/` deps):
+
+```bash
+cd experiments/paddleball-qlearn-wasm
 npm install
 ```
 
-2) Run the dev server (this also builds Rust→WASM and watches Rust changes):
+3) Run the dev loop (Rust→WASM rebuild + Vite dev server):
 
 ```bash
 npm run dev
@@ -55,8 +64,7 @@ npm run dev
 Open the URL printed by Vite.
 
 Notes:
-- You still need `wasm-pack` installed (Vite runs it via a plugin).
-- If you only want to (re)build the WASM package once: `npm run build:wasm`.
+- This uses the same pattern as MagCreate: `cargo watch` rebuilds to `/pkg`, Vite serves the frontend and reloads.
 
 ## Experiment plan (phases)
 

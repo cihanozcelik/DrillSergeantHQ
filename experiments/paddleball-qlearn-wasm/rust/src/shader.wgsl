@@ -6,7 +6,10 @@ struct Scene {
   ball_x: f32,
   ball_y: f32,
   ball_r: f32,
+  aspect: f32,
   _pad0: f32,
+  _pad1: f32,
+  _pad2: f32,
 }
 
 @group(0) @binding(0)
@@ -34,9 +37,9 @@ fn vs_main(@builtin(vertex_index) vi: u32) -> VsOut {
   return out;
 }
 
-fn rect_sdf(p: vec2<f32>, center: vec2<f32>, half: vec2<f32>) -> f32 {
+fn rect_sdf_aspect(p: vec2<f32>, center: vec2<f32>, half: vec2<f32>, aspect: f32) -> f32 {
   // Signed distance to axis-aligned box.
-  let d = abs(p - center) - half;
+  let d = abs(vec2<f32>((p.x - center.x) * aspect, p.y - center.y)) - vec2<f32>(half.x * aspect, half.y);
   return length(max(d, vec2<f32>(0.0))) + min(max(d.x, d.y), 0.0);
 }
 
@@ -48,11 +51,12 @@ fn fs_main(in: VsOut) -> @location(0) vec4<f32> {
   // Paddle: center in UV space.
   let paddle_center = vec2<f32>(scene.paddle_x, scene.paddle_y);
   let paddle_half = vec2<f32>(scene.paddle_w * 0.5, scene.paddle_h * 0.5);
-  let d_paddle = rect_sdf(uv, paddle_center, paddle_half);
+  let d_paddle = rect_sdf_aspect(uv, paddle_center, paddle_half, scene.aspect);
 
   // Ball: circle in UV space.
   let ball_center = vec2<f32>(scene.ball_x, scene.ball_y);
-  let d_ball = length(uv - ball_center) - scene.ball_r;
+  let dv = vec2<f32>((uv.x - ball_center.x) * scene.aspect, uv.y - ball_center.y);
+  let d_ball = length(dv) - scene.ball_r;
 
   // Colors.
   let bg = vec3<f32>(0.06, 0.07, 0.09);

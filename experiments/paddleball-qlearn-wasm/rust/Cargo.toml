@@ -19,7 +19,7 @@ web-sys = { version = "0.3", features = [
   "Window",
 ] }
 
-wgpu = "0.20"
+wgpu = "23"
 
 anyhow = "1"
 bytemuck = { version = "1", features = ["derive"] }

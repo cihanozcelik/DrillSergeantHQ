@@ -1,0 +1,17 @@
+{
+  "name": "paddleball-qlearn-wasm",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "postinstall": "npm --prefix web install",
+    "build:wasm": "cd rust && wasm-pack build --target web --out-dir ../pkg",
+    "watch:wasm": "cd rust && cargo watch -w src -w Cargo.toml -s \"wasm-pack build --dev --target web --out-dir ../pkg\"",
+    "dev:web": "npm --prefix web run dev",
+    "dev": "concurrently -k -n WASM,WEB -c magenta,cyan \"npm run watch:wasm\" \"npm run dev:web\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
+
+

@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build:wasm": "cd ../rust && wasm-pack build --target web --out-dir ../web/src/pkg",
     "build": "vite build",
     "preview": "vite preview"
   },

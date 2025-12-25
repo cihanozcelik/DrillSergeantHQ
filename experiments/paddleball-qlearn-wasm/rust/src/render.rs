@@ -28,7 +28,10 @@ struct SceneUniforms {
     ball_x: f32,
     ball_y: f32,
     ball_r: f32,
+    aspect: f32,
     _pad0: f32,
+    _pad1: f32,
+    _pad2: f32,
 }
 
 pub async fn run_canvas(canvas: HtmlCanvasElement) -> anyhow::Result<()> {
@@ -80,8 +83,11 @@ impl RenderState {
                 &wgpu::DeviceDescriptor {
                     label: Some("device"),
                     required_features: wgpu::Features::empty(),
-                    required_limits: wgpu::Limits::downlevel_webgl2_defaults()
-                        .using_resolution(adapter.limits()),
+                    // Match the working pattern used in MagCreate (wgpu 23):
+                    // keep limits at defaults and let wgpu negotiate safely.
+                    required_limits: wgpu::Limits::default(),
+                    memory_hints: Default::default(),
+                    ..Default::default()
                 },
                 None,
             )
@@ -109,6 +115,7 @@ impl RenderState {
         surface.configure(&device, &config);
 
         // Initial "static" scene values (tutorial will replace with sim state).
+        let aspect = (config.width as f32) / (config.height as f32).max(1.0);
         let uniforms = SceneUniforms {
             paddle_x: 0.5,
             paddle_y: 0.12,
@@ -117,7 +124,10 @@ impl RenderState {
             ball_x: 0.5,
             ball_y: 0.65,
             ball_r: 0.03,
+            aspect,
             _pad0: 0.0,
+            _pad1: 0.0,
+            _pad2: 0.0,
         };
 
         let uniforms_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -165,13 +175,13 @@ impl RenderState {
             layout: Some(&pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,
-                entry_point: "vs_main",
+                entry_point: Some("vs_main"),
                 buffers: &[],
                 compilation_options: wgpu::PipelineCompilationOptions::default(),
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
-                entry_point: "fs_main",
+                entry_point: Some("fs_main"),
                 targets: &[Some(wgpu::ColorTargetState {
                     format: config.format,
                     blend: Some(wgpu::BlendState::ALPHA_BLENDING),
@@ -183,6 +193,7 @@ impl RenderState {
             depth_stencil: None,
             multisample: wgpu::MultisampleState::default(),
             multiview: None,
+            cache: None,
         });
 
         let width = config.width;
@@ -207,12 +218,14 @@ impl RenderState {
         // Canvas pixel size is controlled by JS (see `web/src/main.ts`).
         let w = self.canvas.width().max(1);
         let h = self.canvas.height().max(1);
-        if w != self.width || h != self.height {
+        let needs_resize = crate::wasm_api::take_needs_resize();
+        if needs_resize || w != self.width || h != self.height {
             self.width = w;
             self.height = h;
             self.config.width = w;
             self.config.height = h;
             self.surface.configure(&self.device, &self.config);
+            self.uniforms.aspect = (w as f32) / (h as f32).max(1.0);
         }
     }
 

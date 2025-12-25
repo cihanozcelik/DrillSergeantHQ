@@ -4,6 +4,8 @@ use wasm_bindgen::prelude::*;
 use web_sys::HtmlCanvasElement;
 
 mod render;
+#[cfg(target_arch = "wasm32")]
+mod wasm_api;
 
 /// Web entrypoint: called from `web/src/main.ts`.
 ///
