@@ -5,6 +5,8 @@
   "scripts": {
     "postinstall": "npm --prefix web install",
     "build:wasm": "cd rust && wasm-pack build --target web --out-dir ../pkg",
+    "build:web": "npm --prefix web run build",
+    "build": "npm run build:wasm && npm run build:web",
     "watch:wasm": "cd rust && cargo watch -w src -w Cargo.toml -s \"wasm-pack build --dev --target web --out-dir ../pkg\"",
     "dev:web": "npm --prefix web run dev",
     "dev": "concurrently -k -n WASM,WEB -c magenta,cyan \"npm run watch:wasm\" \"npm run dev:web\""
