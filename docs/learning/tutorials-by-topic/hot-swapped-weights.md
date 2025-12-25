@@ -81,7 +81,7 @@ Two common smoothing strategies:
 ### A) Action blending (policy interpolation)
 For stochastic policies, mix distributions:
 
-- \(\pi = (1-\alpha)\pi_{old} + \alpha \pi_{new}\) for a short window
+- $\pi = (1-\alpha)\pi_{old} + \alpha \pi_{new}$ for a short window
 
 ### B) Logit/value blending
 Blend logits or network outputs over time, then commit.
