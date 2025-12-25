@@ -15,12 +15,15 @@ You will then extend it (guided by this tutorial) into a simple RL environment:
 - ✅ A minimal `wgpu` render loop drawing a paddle and a ball.
 - ✅ A place to implement `env.step(action)` later.
 
+## Tutorial (with code)
+
+- Read the full beginner tutorial here: [`TUTORIAL.md`](TUTORIAL.md)
+
 ## Folder layout
 
 ```
 experiments/paddleball-qlearn-wasm/
-  PLAN.md
-  EXPERIMENTATION.md
+  TUTORIAL.md
   rust/          # Rust -> WASM crate (wgpu rendering + future RL core)
   web/           # Vite app that loads the wasm module
 ```
@@ -36,45 +39,76 @@ experiments/paddleball-qlearn-wasm/
 
 From the repo root:
 
-1) Build the WASM package:
+1) Install web deps:
 
 ```bash
-cd experiments/paddleball-qlearn-wasm/rust
-wasm-pack build --target web --out-dir ../web/src/pkg
+cd experiments/paddleball-qlearn-wasm/web
+npm install
 ```
 
-2) Run the web dev server:
+2) Run the dev server (this also builds Rust→WASM and watches Rust changes):
 
 ```bash
-cd ../web
-npm install
 npm run dev
 ```
 
 Open the URL printed by Vite.
 
-## Running it (auto-rebuild + auto-refresh)
+Notes:
+- You still need `wasm-pack` installed (Vite runs it via a plugin).
+- If you only want to (re)build the WASM package once: `npm run build:wasm`.
 
-If you want a “watch mode” (edit Rust/TS → auto rebuild → browser refresh):
+## Experiment plan (phases)
 
-1) Install the Rust watcher once:
+- **Phase 0 (scaffold)**:
+  - Vite boots a web app
+  - Rust compiles to WASM via `wasm-pack`
+  - `wgpu` renders a paddle + ball on a `<canvas>`
+- **Phase 1 (deterministic env)**:
+  - Fixed timestep (`dt = 1/60`)
+  - Walls: left/right/top reflect; bottom = terminal
+  - Paddle moves on X, with max speed
+  - Paddle-ball collision yields a bounce
+- **Phase 2 (reward + episode)**:
+  - Sparse reward: `+1` bounce, `-1` terminal, `0` otherwise
+  - Episode reset + stats (length, total reward, catches)
+- **Phase 3 (discretization + tabular Q-learning)**:
+  - Discrete bins for ball `(x,y)`, ball `(vx,vy)`, paddle `x`
+  - Q-table + epsilon-greedy policy
+- **Phase 4 (training ergonomics)**:
+  - Multiple sim steps per render frame
+  - Pause/step controls
+  - Basic on-screen stats
 
-```bash
-cargo install cargo-watch
-```
+## Experimentation knobs (what to tweak)
 
-2) Start the watch dev loop:
+- **Rendering (Phase 0)**:
+  - Canvas size (smaller = faster)
+  - Paddle/ball colors
+  - Coordinate mapping (NDC vs pixel)
+- **Physics (Phase 1)**:
+  - `dt`: try `1/30`, `1/60`, `1/120`
+  - Ball: initial `vx/vy`, max speed clamp
+  - Restitution: wall bounce coefficient, paddle bounce coefficient
+  - Paddle: width/height, **max speed**
+- **Reward (Phase 2)**:
+  - Sparse only: `+1` bounce, `-1` terminal
+  - (Later) shaped reward variants: small + for keeping ball above paddle line, small - for time
+- **Discretization (Phase 3)**:
+  - Bin counts: ball x/y, vx/vy, paddle x
+  - Value ranges per dimension (clamp ranges)
+- **Q-learning (Phase 3)**:
+  - `epsilon`: start ~`0.2`, decay to `0.05`
+  - `alpha`: start ~`0.1`
+  - `gamma`: start ~`0.99`
+  - Steps per render frame (training speed)
 
-```bash
-cd experiments/paddleball-qlearn-wasm/web
-npm install
-npm run dev:wasm:watch
-```
+## What to record (recommended)
 
-What happens:
-- Vite runs the dev server (HMR / page refresh)
-- `cargo watch` rebuilds the WASM package into `web/src/pkg/` when Rust changes
-- Vite sees `web/src/pkg/` updates and reloads the page
+- Average episode length over last N episodes
+- Average reward over last N episodes
+- Catch rate
+- Epsilon schedule and whether learning is stable
 
 ## Tutorial: how to read the code
 
