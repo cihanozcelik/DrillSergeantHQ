@@ -230,6 +230,10 @@ impl RenderState {
     }
 
     fn update(&mut self) {
+        // Important ordering: resize updates `uniforms.aspect`, which must be
+        // reflected in the uniform buffer *before* we render this frame.
+        self.resize_if_needed();
+
         // Scaffold: static scene (no animation).
         // Keep these values stable; later phases can replace this with simulation.
         self.uniforms.ball_x = 0.5;
