@@ -39,6 +39,7 @@ DrillSergeantHQ is that learning project: **no magic boxes**, just the fundament
 ## Documentation
 
 - **Technical design**: [`docs/technical-design.md`](docs/technical-design.md)
+- **Project status (docs-only phase)**: [`docs/status.md`](docs/status.md)
 - **The learning book (engine-style, long-form)**: [`docs/learning/the-book/README.md`](docs/learning/the-book/README.md)
 - **Standalone tutorials index**: [`docs/learning/tutorials-by-topic/README.md`](docs/learning/tutorials-by-topic/README.md)
 
