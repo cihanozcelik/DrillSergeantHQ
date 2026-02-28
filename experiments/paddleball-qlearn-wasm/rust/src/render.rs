@@ -43,6 +43,12 @@ struct BallState {
     vy: f32,
 }
 
+/// Step 01: throttle debug output (e.g. ~1 Hz log).
+#[derive(Clone, Copy, Debug)]
+struct DebugTimers {
+    last_log_ms: f64,
+}
+
 pub async fn run_canvas(canvas: HtmlCanvasElement) -> anyhow::Result<()> {
     // Note: we keep everything inside this async function so the wasm entrypoint
     // can `spawn_local` it.
@@ -68,6 +74,7 @@ struct RenderState {
     uniforms_bind_group: wgpu::BindGroup,
     ball: BallState,
     last_frame_ms: f64,
+    dbg: DebugTimers,
 }
 
 impl RenderState {
@@ -215,6 +222,9 @@ impl RenderState {
             .map(|p| p.now())
             .unwrap_or(0.0);
 
+        let dbg = DebugTimers {
+            last_log_ms: last_frame_ms,
+        };
         let ball = BallState {
             x: 0.5,
             y: 0.65,
@@ -236,6 +246,7 @@ impl RenderState {
             uniforms_bind_group,
             ball,
             last_frame_ms,
+            dbg,
         })
     }
 
@@ -259,15 +270,15 @@ impl RenderState {
         // reflected in the uniform buffer *before* we render this frame.
         self.resize_if_needed();
 
-        // Step 01: dt from frame-to-frame delta 
+        // Step 01: dt from frame-to-frame delta
         let now_ms = web_sys::window()
             .and_then(|w| w.performance())
             .map(|p| p.now())
             .unwrap_or(self.last_frame_ms);
         let mut dt = ((now_ms - self.last_frame_ms) * 0.001) as f32;
         self.last_frame_ms = now_ms;
-
-        clamp to avoid huge jumps on tab switch
+        
+        // clamp to avoid huge jumps on tab switch
         dt = dt.clamp(0.0, 0.05);
 
         // Euler integrate ball.
@@ -277,6 +288,17 @@ impl RenderState {
         // Drive uniforms from ball state.
         self.uniforms.ball_x = self.ball.x;
         self.uniforms.ball_y = self.ball.y;
+
+        // Step 01: debug log ~1 Hz.
+        if now_ms - self.dbg.last_log_ms > 1000.0 {
+            self.dbg.last_log_ms = now_ms;
+            log::info!(
+                "ball x={:.3} y={:.3} dt_ms={:.1}",
+                self.ball.x,
+                self.ball.y,
+                dt * 1000.0
+            );
+        }
 
         self.queue
             .write_buffer(&self.uniforms_buffer, 0, bytemuck::bytes_of(&self.uniforms));
