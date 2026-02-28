@@ -60,6 +60,10 @@ pub async fn run_canvas(canvas: HtmlCanvasElement) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// Fixed timestep: 50 Hz, like Unity does by default.
+/// Physics runs 50 times per second regardless of render FPS.
+const FIXED_UPDATE_HZ: f32 = 50.0;
+
 struct RenderState {
     canvas: HtmlCanvasElement,
     surface: wgpu::Surface<'static>,
@@ -76,6 +80,10 @@ struct RenderState {
     paddle_x: f32,
     last_frame_ms: f64,
     dbg: DebugTimers,
+    /// Accumulated real time (seconds) to consume with fixed steps.
+    accum_s: f32,
+    /// Fixed delta time: 1/50 s (50 Hz, like Unity default).
+    dt_fixed: f32,
 }
 
 impl RenderState {
@@ -250,6 +258,8 @@ impl RenderState {
             paddle_x,
             last_frame_ms,
             dbg,
+            accum_s: 0.0,
+            dt_fixed: 1.0 / FIXED_UPDATE_HZ,
         })
     }
 
@@ -273,29 +283,38 @@ impl RenderState {
         // reflected in the uniform buffer *before* we render this frame.
         self.resize_if_needed();
 
-        // Step 01: dt from frame-to-frame delta
+        // Real frame delta (seconds); clamp to avoid huge jumps on tab switch.
         let now_ms = web_sys::window()
             .and_then(|w| w.performance())
             .map(|p| p.now())
             .unwrap_or(self.last_frame_ms);
         let mut dt = ((now_ms - self.last_frame_ms) * 0.001) as f32;
         self.last_frame_ms = now_ms;
-
-        // clamp to avoid huge jumps on tab switch
         dt = dt.clamp(0.0, 0.05);
 
-        // Euler integrate ball.
-        self.ball.x += self.ball.vx * dt;
-        self.ball.y += self.ball.vy * dt;
-
-        // Step 02: paddle movement (dir placeholder; Step 05 = keyboard input).
+        // Fixed timestep: accumulate real time, then step physics with dt_fixed.
+        // Input and constants: once per frame (dir will be keyboard in Step 05).
         let dir: f32 = 1.0;
         let paddle_max_speed: f32 = 0.80;
-        self.paddle_x += dir * paddle_max_speed * dt;
         let half = self.uniforms.paddle_w * 0.5;
-        self.paddle_x = self.paddle_x.clamp(half, 1.0 - half);
 
-        // Drive uniforms from state.
+        self.accum_s += dt;
+        let max_steps = 16;
+        let mut steps = 0;
+        while self.accum_s >= self.dt_fixed && steps < max_steps {
+            steps += 1;
+            self.accum_s -= self.dt_fixed;
+
+            // Simulate one fixed step (ball).
+            self.ball.x += self.ball.vx * self.dt_fixed;
+            self.ball.y += self.ball.vy * self.dt_fixed;
+
+            // Paddle.
+            self.paddle_x += dir * paddle_max_speed * self.dt_fixed;
+            self.paddle_x = self.paddle_x.clamp(half, 1.0 - half);
+        }
+
+        // Render once per frame from latest world state.
         self.uniforms.ball_x = self.ball.x;
         self.uniforms.ball_y = self.ball.y;
         self.uniforms.paddle_x = self.paddle_x;
@@ -304,10 +323,11 @@ impl RenderState {
         if now_ms - self.dbg.last_log_ms > 1000.0 {
             self.dbg.last_log_ms = now_ms;
             log::info!(
-                "ball x={:.3} y={:.3} dt_ms={:.1}",
+                "ball x={:.3} y={:.3} steps={} accum_ms={:.1}",
                 self.ball.x,
                 self.ball.y,
-                dt * 1000.0
+                steps,
+                self.accum_s * 1000.0
             );
         }
 
