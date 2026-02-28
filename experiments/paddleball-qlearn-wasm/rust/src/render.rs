@@ -67,6 +67,7 @@ struct RenderState {
     uniforms_buffer: wgpu::Buffer,
     uniforms_bind_group: wgpu::BindGroup,
     ball: BallState,
+    last_frame_ms: f64,
 }
 
 impl RenderState {
@@ -209,6 +210,11 @@ impl RenderState {
         let width = config.width;
         let height = config.height;
 
+        let last_frame_ms = web_sys::window()
+            .and_then(|w| w.performance())
+            .map(|p| p.now())
+            .unwrap_or(0.0);
+
         let ball = BallState {
             x: 0.5,
             y: 0.65,
@@ -229,6 +235,7 @@ impl RenderState {
             uniforms_buffer,
             uniforms_bind_group,
             ball,
+            last_frame_ms,
         })
     }
 
@@ -252,7 +259,22 @@ impl RenderState {
         // reflected in the uniform buffer *before* we render this frame.
         self.resize_if_needed();
 
-        // Step 01: drive uniforms from ball state (no hardcoded ball position).
+        // Step 01: dt from frame-to-frame delta 
+        let now_ms = web_sys::window()
+            .and_then(|w| w.performance())
+            .map(|p| p.now())
+            .unwrap_or(self.last_frame_ms);
+        let mut dt = ((now_ms - self.last_frame_ms) * 0.001) as f32;
+        self.last_frame_ms = now_ms;
+
+        clamp to avoid huge jumps on tab switch
+        dt = dt.clamp(0.0, 0.05);
+
+        // Euler integrate ball.
+        self.ball.x += self.ball.vx * dt;
+        self.ball.y += self.ball.vy * dt;
+
+        // Drive uniforms from ball state.
         self.uniforms.ball_x = self.ball.x;
         self.uniforms.ball_y = self.ball.y;
 
