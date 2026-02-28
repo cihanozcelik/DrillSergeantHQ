@@ -69,7 +69,7 @@ let now_ms = window.performance().unwrap().now();
 let mut dt = ((now_ms - self.last_frame_ms) * 0.001) as f32;
 self.last_frame_ms = now_ms;
 
-// clamp dt to avoid giant jumps (formalized in Step 03)
+// clamp dt to avoid giant jumps
 dt = dt.clamp(0.0, 0.05);
 
 // integrate ball
