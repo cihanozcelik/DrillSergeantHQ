@@ -73,6 +73,7 @@ struct RenderState {
     uniforms_buffer: wgpu::Buffer,
     uniforms_bind_group: wgpu::BindGroup,
     ball: BallState,
+    paddle_x: f32,
     last_frame_ms: f64,
     dbg: DebugTimers,
 }
@@ -231,6 +232,7 @@ impl RenderState {
             vx: 0.20,
             vy: 0.15,
         };
+        let paddle_x = uniforms.paddle_x;
 
         Ok(Self {
             canvas,
@@ -245,6 +247,7 @@ impl RenderState {
             uniforms_buffer,
             uniforms_bind_group,
             ball,
+            paddle_x,
             last_frame_ms,
             dbg,
         })
@@ -277,7 +280,7 @@ impl RenderState {
             .unwrap_or(self.last_frame_ms);
         let mut dt = ((now_ms - self.last_frame_ms) * 0.001) as f32;
         self.last_frame_ms = now_ms;
-        
+
         // clamp to avoid huge jumps on tab switch
         dt = dt.clamp(0.0, 0.05);
 
@@ -285,9 +288,17 @@ impl RenderState {
         self.ball.x += self.ball.vx * dt;
         self.ball.y += self.ball.vy * dt;
 
-        // Drive uniforms from ball state.
+        // Step 02: paddle movement (dir placeholder; Step 05 = keyboard input).
+        let dir: f32 = 1.0;
+        let paddle_max_speed: f32 = 0.80;
+        self.paddle_x += dir * paddle_max_speed * dt;
+        let half = self.uniforms.paddle_w * 0.5;
+        self.paddle_x = self.paddle_x.clamp(half, 1.0 - half);
+
+        // Drive uniforms from state.
         self.uniforms.ball_x = self.ball.x;
         self.uniforms.ball_y = self.ball.y;
+        self.uniforms.paddle_x = self.paddle_x;
 
         // Step 01: debug log ~1 Hz.
         if now_ms - self.dbg.last_log_ms > 1000.0 {
