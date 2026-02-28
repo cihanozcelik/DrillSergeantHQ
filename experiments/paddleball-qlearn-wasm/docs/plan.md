@@ -31,7 +31,7 @@ Notes for clarity:
 - **Train / Stop training**
 - **Reset episode**
 - **Reset training** (clears Q-table)
-- **Speed** control (sim steps per render frame, or steps/sec)
+- **Speed** control (sim steps per render frame)
 - **Exploration (epsilon)** control
 - **Manual interference** toggle:
   - While training, allow the user to temporarily override the agent action (or blend actions) to see cause/effect.
@@ -41,7 +41,6 @@ Notes for clarity:
 - Episode length (steps)
 - Bounces per episode
 - Moving average of bounces/episode
-- Steps/sec
 - Current mode (Manual/Train/Eval) and current epsilon
 
 Training speed expectation:
@@ -64,17 +63,16 @@ This experiment is considered **usable** when a beginner can:
 
 > Assumption: the **rendering scaffold already works** (see `scaffold.md`). This plan starts **after** the scaffold and focuses on building the RL learning experiment on top.
 
-### Step 01 — Make it move (visible progress: ball + paddle)
-- [ ] Implement the smallest possible `World` that supports: ball position/velocity + paddle position.
-- [ ] In Rust, advance the world once per frame with a simple `dt` (even if it’s rough at first).
-- [ ] Render from world state (ball/paddle positions come from the world, not hardcoded uniforms).
-- **Done when**: You can see the ball drifting in a direction and the paddle sliding left/right (no collisions required yet).
+### Step 01 — Make the ball move (visible progress)
+- [ ] Implement ball position/velocity state (e.g. `BallState`) and store it on render state.
+- [ ] Advance once per frame with a simple `dt` (real time source + clamp; see guide 01).
+- [ ] Render ball from state (no hardcoded ball position).
+- **Done when**: You can see the ball drifting in a direction (no collisions required yet).
 
-### Step 02 — Time step basics (make motion consistent)
-- [ ] Switch from “dt per frame guessed” to a real time source (frame-to-frame delta).
-- [ ] Clamp `dt` (avoid huge jumps on tab-switch) and make paddle motion use `max_speed * dt`.
-- [ ] Add an on-screen debug readout (or console) showing current `dt` and steps/sec.
-- **Done when**: The ball moves at the same *speed* regardless of FPS, and the paddle never teleports.
+### Step 02 — Make the paddle move
+- [ ] Add paddle position to state; drive paddle uniform from it.
+- [ ] Paddle movement with `max_speed * dt` and clamp inside play area (no teleport).
+- **Done when**: The paddle slides left/right; motion is consistent with FPS (no collisions yet).
 
 ### Step 03 — Fixed timestep loop (learnable + stable)
 - [ ] Add a fixed `dt_fixed` (e.g., 1/120) with an accumulator.
@@ -112,85 +110,85 @@ This experiment is considered **usable** when a beginner can:
 - [ ] Implement rewards: +1 bounce, -1 miss, 0 otherwise.
 - **Done when**: You can keep the ball alive by moving the paddle, and misses reset the episode.
 
-### Step 08 — Input plumbing (keyboard → WASM → current action)
+### Step 09 — Input plumbing (keyboard → WASM → current action)
 - [ ] Add keyboard controls in `web/src/main.ts` (left/right; optionally space).
 - [ ] Add WASM API to set current action (or store in a thread_local flag).
 - [ ] In Rust update loop, read action and apply to world step.
 - **Done when**: User can reliably move paddle with keys.
 
-### Step 09 — Episode loop + basic stats (what happens when you miss)
+### Step 10 — Episode loop + basic stats (what happens when you miss)
 - [ ] Track per-episode counters (steps, bounces).
 - [ ] On terminal, reset episode and increment episode count.
 - [ ] Log a concise episode summary periodically.
 - **Done when**: Episodes end/restart and stats increment correctly.
 
-### Step 10 — Deterministic RNG + seed (reproducible runs)
+### Step 11 — Deterministic RNG + seed (reproducible runs)
 - [ ] Implement a tiny pure-Rust RNG (LCG/xorshift).
 - [ ] Use it to randomize initial ball velocity/position slightly.
 - [ ] Add a seed setter (constant or WASM export).
 - **Done when**: Same seed produces same first N episodes.
 
-### Step 11 — Discretization (floats → finite `state_id`)
+### Step 12 — Discretization (floats → finite `state_id`)
 - [ ] Create `rust/src/discretize.rs` with `Bins`, `state_id()`, `num_states()`.
 - [ ] Implement binning + base-N packing.
 - [ ] Unit test: `state_id` always in \[0, num_states).
 - **Done when**: State encoder is stable, bounded, and changes with motion.
 
-### Step 12 — Q-table structure + indexing
+### Step 13 — Q-table structure + indexing
 - [ ] Create `rust/src/qlearn.rs` with `QLearn { q: Vec<f32>, ... }`.
 - [ ] Implement indexing `q[s * A + a]` and helpers (`argmax`, `max_q`).
 - [ ] Unit test indexing correctness.
 - **Done when**: Q-table reads/writes are correct and test-covered.
 
-### Step 13 — Epsilon-greedy action selection
+### Step 14 — Epsilon-greedy action selection
 - [ ] Implement epsilon-greedy selection using the RNG.
 - [ ] Add tests: epsilon=0 picks argmax; epsilon=1 picks random actions.
 - [ ] Add a mode flag (Manual vs Agent).
 - **Done when**: Agent chooses actions as expected under different epsilons.
 
-### Step 14 — Q-learning update (Bellman update)
+### Step 15 — Q-learning update (Bellman update)
 - [ ] Implement update rule with alpha/gamma.
 - [ ] Decide terminal handling (no bootstrap on terminal).
 - [ ] Add a deterministic unit test for one transition update.
 - **Done when**: Update math is verified by tests.
 
-### Step 15 — Add a mode/state machine (Play / Train / Pause / Evaluate)
+### Step 16 — Add a mode/state machine (Play / Train / Pause / Evaluate)
 - [ ] Define a single `Mode` enum in Rust (and/or mirrored in JS): `Play`, `Train`, `Paused`, `Evaluate`.
 - [ ] Define “paused” semantics: sim continues, learning updates OFF; evaluate sets epsilon=0 by default.
 - [ ] Add WASM exports to set mode and read current mode for UI.
 - **Done when**: You can switch modes at runtime without recompiling.
 
-### Step 16 — Training loop integration (Train mode, accelerated)
+### Step 17 — Training loop integration (Train mode, accelerated)
 - [ ] Add `K` sim steps per render frame for fast learning feedback.
 - [ ] Per step: compute s, choose a, step world, compute s', update Q, handle done.
 - [ ] Keep rendering from the current world state (not per-substep) for clarity.
 - **Done when**: Training shows measurable improvement (bounces/episode increases).
 
-### Step 17 — Metrics collection (what to measure and how)
-- [ ] Define metrics struct: episode length, bounces/episode, moving averages, steps/sec.
+### Step 18 — Metrics collection (what to measure and how)
+- [ ] Define metrics struct: episode length, bounces/episode, moving averages.
 - [ ] Update metrics at episode boundaries and at fixed time intervals (avoid spam).
 - [ ] Expose metrics to JS via WASM getters (or one JSON snapshot getter).
 - **Done when**: You can read a stable metric snapshot from JS at any time.
 
-### Step 18 — Metrics overlay (teach what’s happening)
+### Step 19 — Metrics overlay (teach what’s happening)
 - [ ] Add moving averages (bounces/episode, episode length).
 - [ ] Expose metrics to JS (WASM exports) or log in a structured way.
 - [ ] Render metrics in a minimal overlay panel in `web/`.
 - **Done when**: A beginner can tell learning is happening without reading code.
 
-### Step 19 — Controls panel (Train/Stop, Reset, Speed, Epsilon, Mode)
+### Step 20 — Controls panel (Train/Stop, Reset, Speed, Epsilon, Mode)
 - [ ] Implement UI buttons: Train/Stop, Reset episode, Reset training.
 - [ ] Implement UI controls: speed (K), epsilon slider, mode selector.
 - [ ] Ensure UI reflects current mode and parameters.
 - **Done when**: User can operate the experiment without touching devtools.
 
-### Step 20 — Manual interference during training (the “teachability” feature)
+### Step 21 — Manual interference during training (the “teachability” feature)
 - [ ] Add a “Manual override” toggle (agent action replaced by user action).
 - [ ] Add an “Interference strength” option (blend/manual priority).
 - [ ] Display indicator when interference is active.
 - **Done when**: User can intervene during training and observe effect on outcomes.
 
-### Step 21 — Persistence (Save/Load Q-table) + doc polish
+### Step 22 — Persistence (Save/Load Q-table) + doc polish
 - [ ] Implement save/load (localStorage is fine for first version).
 - [ ] Include metadata (bins/action count/version) to detect mismatches.
 - [ ] Update `README.md` with user-facing controls and what to expect.
