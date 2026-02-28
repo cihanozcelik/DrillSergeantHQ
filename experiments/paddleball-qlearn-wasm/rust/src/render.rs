@@ -34,6 +34,15 @@ struct SceneUniforms {
     _pad2: f32,
 }
 
+/// Minimal ball state (Step 01). Position + velocity
+#[derive(Clone, Copy, Debug)]
+struct BallState {
+    x: f32,
+    y: f32,
+    vx: f32,
+    vy: f32,
+}
+
 pub async fn run_canvas(canvas: HtmlCanvasElement) -> anyhow::Result<()> {
     // Note: we keep everything inside this async function so the wasm entrypoint
     // can `spawn_local` it.
@@ -57,6 +66,7 @@ struct RenderState {
     uniforms: SceneUniforms,
     uniforms_buffer: wgpu::Buffer,
     uniforms_bind_group: wgpu::BindGroup,
+    ball: BallState,
 }
 
 impl RenderState {
@@ -199,6 +209,13 @@ impl RenderState {
         let width = config.width;
         let height = config.height;
 
+        let ball = BallState {
+            x: 0.5,
+            y: 0.65,
+            vx: 0.20,
+            vy: 0.15,
+        };
+
         Ok(Self {
             canvas,
             surface,
@@ -211,6 +228,7 @@ impl RenderState {
             uniforms,
             uniforms_buffer,
             uniforms_bind_group,
+            ball,
         })
     }
 
@@ -234,10 +252,9 @@ impl RenderState {
         // reflected in the uniform buffer *before* we render this frame.
         self.resize_if_needed();
 
-        // Scaffold: static scene (no animation).
-        // Keep these values stable; later phases can replace this with simulation.
-        self.uniforms.ball_x = 0.5;
-        self.uniforms.ball_y = 0.65;
+        // Step 01: drive uniforms from ball state (no hardcoded ball position).
+        self.uniforms.ball_x = self.ball.x;
+        self.uniforms.ball_y = self.ball.y;
 
         self.queue
             .write_buffer(&self.uniforms_buffer, 0, bytemuck::bytes_of(&self.uniforms));
