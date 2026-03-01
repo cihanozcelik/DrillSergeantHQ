@@ -293,8 +293,8 @@ impl RenderState {
         dt = dt.clamp(0.0, 0.05);
 
         // Fixed timestep: accumulate real time, then step physics with dt_fixed.
-        // Input and constants: once per frame (dir will be keyboard in Step 05).
-        let dir: f32 = 1.0;
+        // Input and constants: once per frame (dir from keyboard via wasm_api).
+        let dir = crate::wasm_api::get_action_dir();
         let paddle_max_speed: f32 = 0.80;
         let half = self.uniforms.paddle_w * 0.5;
 

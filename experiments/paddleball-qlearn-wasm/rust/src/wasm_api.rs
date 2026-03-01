@@ -5,6 +5,8 @@ use wasm_bindgen::prelude::*;
 thread_local! {
     static NEEDS_RESIZE: Cell<bool> = Cell::new(false);
     static DEVICE_PIXEL_RATIO: Cell<f32> = Cell::new(1.0);
+    /// -1 left, 0 stay, +1 right (set by JS keydown/keyup).
+    static CURRENT_ACTION: Cell<i32> = Cell::new(0);
 }
 
 /// Called by JS after it changes the canvas backing size.
@@ -33,6 +35,17 @@ pub fn take_needs_resize() -> bool {
 #[allow(dead_code)]
 pub fn get_dpr() -> f32 {
     DEVICE_PIXEL_RATIO.with(|v| v.get())
+}
+
+/// Called by JS when keyboard state changes (ArrowLeft/ArrowRight).
+#[wasm_bindgen]
+pub fn wasm_set_action(a: i32) {
+    CURRENT_ACTION.with(|v| v.set(a.clamp(-1, 1)));
+}
+
+/// Read current paddle direction for the simulation (Rust calls this each frame).
+pub fn get_action_dir() -> f32 {
+    CURRENT_ACTION.with(|v| v.get() as f32)
 }
 
 

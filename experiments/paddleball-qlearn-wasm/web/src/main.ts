@@ -1,8 +1,21 @@
 import init, {
   run,
   wasm_notify_resize,
-  wasm_set_dpr
+  wasm_set_dpr,
+  wasm_set_action
 } from "../../pkg/paddleball_qlearn_wasm.js";
+
+let leftDown = false;
+let rightDown = false;
+
+function updateAction() {
+  const dir = (rightDown ? 1 : 0) - (leftDown ? 1 : 0);
+  try {
+    wasm_set_action?.(dir);
+  } catch {
+    /* ignore */
+  }
+}
 
 function setupCanvas(): { canvas: HTMLCanvasElement; container: HTMLElement } {
   const app = document.getElementById("app");
@@ -106,6 +119,27 @@ async function main() {
   window.addEventListener("resize", resizeCanvas);
   const ro = new ResizeObserver(() => resizeCanvas());
   ro.observe(container);
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+      leftDown = true;
+      updateAction();
+    }
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+      rightDown = true;
+      updateAction();
+    }
+  });
+  window.addEventListener("keyup", (e) => {
+    if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+      leftDown = false;
+      updateAction();
+    }
+    if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+      rightDown = false;
+      updateAction();
+    }
+  });
 
   // Wait until canvas has non-zero size before starting WASM.
   const startWhenReady = async () => {
